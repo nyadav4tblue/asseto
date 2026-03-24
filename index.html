@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Second Verification Certificate Preview</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="login-screen" id="loginScreen">
+      <section class="login-card">
+        <p class="mini-label">Authorized Access</p>
+        <h1>Gold Loan Certificate Portal</h1>
+        <p class="login-copy">
+          Sign in to access the valuation certificate workspace.
+        </p>
+
+        <form class="login-form" id="loginForm">
+          <label>
+            User ID
+            <input id="loginUser" type="text" autocomplete="username" />
+          </label>
+          <label>
+            Password
+            <input
+              id="loginPassword"
+              type="password"
+              autocomplete="current-password"
+            />
+          </label>
+          <p class="login-hint">Demo login: `admin` / `gold123`</p>
+          <p class="login-error" id="loginError" hidden>
+            Invalid credentials. Please try again.
+          </p>
+          <button class="login-submit" type="submit">Sign In</button>
+        </form>
+      </section>
+    </main>
+
+    <main class="workspace is-hidden" id="appWorkspace">
+      <section class="control-panel">
+        <div class="control-header">
+          <!-- <p class="mini-label">Preview Controls</p> -->
+          <!-- <h1>Staendra Sample</h1> -->
+          <!-- <p>
+            Test description goes here.
+          </p> -->
+        </div>
+
+        <div class="session-actions">
+          <button id="logoutButton" type="button">Logout</button>
+        </div>
+
+        <form class="entry-form">
+          <section class="form-section" data-collapsible>
+            <button class="section-toggle" type="button" aria-expanded="true">
+              <span class="section-head">
+                <span>
+                  <h3>Certificate Details</h3>
+                  <p>Main certificate information</p>
+                </span>
+                <span class="section-caret">▾</span>
+              </span>
+            </button>
+            <div class="section-content control-grid">
+              <label>
+                Certificate date
+                <input id="certificateDate" type="date" />
+              </label>
+              <label>
+                Appraiser certificate date
+                <input id="appraiserCertDate" type="date" />
+              </label>
+              <label>
+                Loan A/c No.
+                <input id="loanAccount" type="text" value="" />
+              </label>
+              <label>
+                Ledger Folio No.
+                <input id="ledgerFolio" type="text" value="" />
+              </label>
+              <label>
+                Place
+                <input id="placeName" type="text" value="" />
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section" data-collapsible>
+            <button class="section-toggle" type="button" aria-expanded="false">
+              <span class="section-head">
+                <span>
+                  <h3>Bank and Appraiser</h3>
+                  <p>Header and appraiser details</p>
+                </span>
+                <span class="section-caret">▾</span>
+              </span>
+            </button>
+            <div class="section-content control-grid is-collapsed">
+              <label>
+                Bank Name
+                <input id="bankName" type="text" value="" />
+              </label>
+              <label>
+                Branch
+                <input id="branchName" type="text" value="" />
+              </label>
+              <label class="wide">
+                Name and address of first appraiser
+                <textarea id="appraiserAddress" rows="2"></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section" data-collapsible>
+            <button class="section-toggle" type="button" aria-expanded="false">
+              <span class="section-head">
+                <span>
+                  <h3>Customer Details</h3>
+                  <p>Applicant information for the certificate</p>
+                </span>
+                <span class="section-caret">▾</span>
+              </span>
+            </button>
+            <div class="section-content control-grid is-collapsed">
+              <label>
+                Customer Name
+                <input id="customerName" type="text" value="" />
+              </label>
+              <label class="wide">
+                Customer Address
+                <textarea id="customerAddress" rows="2"></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section" data-collapsible>
+            <button class="section-toggle" type="button" aria-expanded="false">
+              <span class="section-head">
+                <span>
+                  <h3>Today Gold Rate</h3>
+                  <p>Use these rates for valuation</p>
+                </span>
+                <span class="section-caret">▾</span>
+              </span>
+            </button>
+            <div class="section-content control-grid is-collapsed">
+              <label>
+                Rate 18K
+                <input id="inputRate18" type="number" value="" />
+              </label>
+              <label>
+                Rate 22K
+                <input id="inputRate22" type="number" value="" />
+              </label>
+              <label>
+                Rate 24K
+                <input id="inputRate24" type="number" value="" />
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section" data-collapsible>
+            <button class="section-toggle" type="button" aria-expanded="false">
+              <span class="section-head">
+                <span>
+                  <h3>Jewelry Items</h3>
+                  <p>Add, edit, or delete each ornament from here</p>
+                </span>
+                <span class="section-caret">▾</span>
+              </span>
+            </button>
+            <div class="section-content is-collapsed">
+              <div id="itemEditorList" class="item-editor-list"></div>
+              <div class="item-actions">
+              <button id="addItemButton" type="button">Add Item Row</button>
+              </div>
+            </div>
+          </section>
+        </form>
+
+        <!-- <div class="panel-actions">
+          <button id="printPdfButton" type="button">Print / Save PDF</button>
+        </div> -->
+      </section>
+
+      <div
+        class="panel-resizer"
+        id="panelResizer"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize panels"
+      ></div>
+
+      <section class="certificate-sheet">
+        <button
+          id="fullscreenButton"
+          class="floating-fullscreen"
+          type="button"
+          aria-label="Full screen"
+          title="Full screen"
+        >
+          <span aria-hidden="true">⛶</span>
+        </button>
+        <div class="sheet-border">
+          <div class="sheet-topline">
+            <div></div>
+            <div class="annexure">Annexure - PL-61(iii)</div>
+          </div>
+
+          <div class="title-block">
+            <h2>SECOND VERIFICATION CERTIFICATE</h2>
+            <div class="date-line">
+              <span>Date:</span>
+              <strong id="documentDate">24/03/2026</strong>
+            </div>
+          </div>
+
+          <table class="info-table">
+            <tbody>
+              <tr>
+                <td>Gold Loan A/c No.</td>
+                <td id="previewLoanAccount">GL-45892013</td>
+              </tr>
+              <tr>
+                <td>Ledger Folio No</td>
+                <td id="previewLedgerFolio">LF-2058</td>
+              </tr>
+              <tr>
+                <td>Name and address of first appraiser.</td>
+                <td id="previewAppraiserAddress">
+                  Arpita Gold Jewellers, Main Road, Aligarh
+                </td>
+              </tr>
+              <tr>
+                <td>Date of Appraiser's Certificate</td>
+                <td id="previewAppraiserCertDate">22/12/2023</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="letter-block">
+            <p>The Branch Manager</p>
+            <p id="previewBankName">State Bank of India</p>
+            <p><span id="previewBranchName">City Branch</span></p>
+            <br />
+            <p>Madam/ Dear Sir,</p>
+            <br />
+            <p>
+              I hereby certify that the ornaments/coins of the above mentioned
+              gold loan account have been weighed and appraised by me on
+              <span id="previewCertificateInlineDate">24/03/2026</span>. The
+              exact weight, purity of the metal and market value of each item
+              as on date are indicated below.
+            </p>
+            <p class="customer-inline">
+              Customer Name: <span id="previewCustomerName"></span>
+            </p>
+            <p class="customer-inline">
+              Customer Address:
+              <span id="previewCustomerAddress"></span>
+            </p>
+            <p class="rate-inline">
+              Today's Gold Rate:
+              <span id="rate18"><strong>18K</strong> - Rs. 0</span>,
+              <span id="rate22"><strong>22K</strong> - Rs. 0</span>,
+              <span id="rate24"><strong>24K</strong> - Rs. 0</span>
+            </p>
+          </div>
+
+          <table class="valuation-table">
+            <thead>
+              <tr>
+                <th>Sl. No.</th>
+                <th>Description of the Article</th>
+                <th>Gross Weight</th>
+                <th>Approx. weight of stones</th>
+                <th>Purity (Carat)</th>
+                <th>Net Weight (Grams)</th>
+                <th>Market Value Rs.</th>
+              </tr>
+            </thead>
+            <tbody id="valuationTableBody">
+              <tr class="total-row">
+                <td></td>
+                <td>Total</td>
+                <td id="totalGrossWeight">26.620</td>
+                <td id="totalStoneWeight">5.324</td>
+                <td></td>
+                <td id="totalNetWeight">21.296</td>
+                <td id="totalMarketValue">159,145</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="declaration">
+            <p>Method(s) used for purity testing: Touch stone / Acid test</p>
+            <p>
+              I solemnly declare that weight, purity of the gold
+              ornaments/precious stones indicated above are correct and I
+              undertake to indemnify the Bank against any loss it may sustain on
+              account of any inaccuracy in the above appraisal.
+            </p>
+          </div>
+
+          <div class="place-date">
+            <p>Place: <span id="previewPlace">Aligarh</span></p>
+            <p>Date: <span id="previewBottomDate">24/03/2026</span></p>
+          </div>
+
+          <div class="signature-area">
+            <div class="signature-center">
+              <p class="faithfully">Yours faithfully</p>
+              <p>Name & Signature of the Appraiser</p>
+            </div>
+          </div>
+
+          <div class="officer-row">
+            <div class="signature-left">
+              <p>Cash Officer/in-Charge</p>
+              <p>Name:</p>
+              <p>PFID:</p>
+            </div>
+            <div class="signature-right">
+              <p>Joint Custody Officer</p>
+              <p>Name:</p>
+              <p>PFID:</p>
+            </div>
+          </div>
+
+          <div class="internal-note">Strictly For Internal Circulation Only</div>
+        </div>
+
+        <div class="preview-bottom-actions">
+          <button id="previewPrintButton" type="button">
+            <span aria-hidden="true">🖨</span>
+            <span>Print</span>
+          </button>
+          <button id="previewPdfButton" type="button">
+            <span aria-hidden="true">⇩</span>
+            <span>Download PDF</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
