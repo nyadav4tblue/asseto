@@ -35,6 +35,7 @@ const AUTH_STORAGE_KEY = "gold-loan-authenticated";
 const AUTH_USER = "admin";
 const AUTH_PASSWORD = "gold123";
 const MOBILE_BREAKPOINT = 760;
+let currentMobileView = "form";
 
 const documentDate = document.getElementById("documentDate");
 const previewLoanAccount = document.getElementById("previewLoanAccount");
@@ -159,6 +160,7 @@ function setAuthenticated(value) {
 }
 
 function setMobileView(mode) {
+  currentMobileView = mode;
   workspace.classList.remove("mobile-form-only", "mobile-preview-only");
 
   if (window.innerWidth > MOBILE_BREAKPOINT) {
@@ -523,7 +525,7 @@ document.addEventListener("mouseup", () => {
 });
 
 window.addEventListener("resize", () => {
-  setMobileView("form");
+  setMobileView(currentMobileView);
 });
 
 syncPreview();
@@ -536,4 +538,4 @@ if (localStorage.getItem(AUTH_STORAGE_KEY) === "true") {
   showLogin();
 }
 
-setMobileView("form");
+setMobileView(currentMobileView);
