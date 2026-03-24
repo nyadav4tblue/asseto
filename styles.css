@@ -440,6 +440,15 @@ input[type="date"] {
   flex-direction: column;
 }
 
+.certificate-brand {
+  text-align: center;
+  font-family: Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+
 .sheet-topline {
   display: flex;
   justify-content: space-between;
@@ -580,15 +589,19 @@ input[type="date"] {
 }
 
 .valuation-table th:nth-child(2) {
-  width: 24%;
+  width: 7%;
 }
 
 .valuation-table th:nth-child(3),
-.valuation-table th:nth-child(4),
+.valuation-table th:nth-child(4) {
+  width: 21%;
+}
+
 .valuation-table th:nth-child(5),
 .valuation-table th:nth-child(6),
-.valuation-table th:nth-child(7) {
-  width: 13%;
+.valuation-table th:nth-child(7),
+.valuation-table th:nth-child(8) {
+  width: 12%;
 }
 
 .total-row td {

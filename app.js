@@ -19,8 +19,8 @@ const placeName = document.getElementById("placeName");
 const customerName = document.getElementById("customerName");
 const customerAddress = document.getElementById("customerAddress");
 const inputRate18 = document.getElementById("inputRate18");
+const inputRate20 = document.getElementById("inputRate20");
 const inputRate22 = document.getElementById("inputRate22");
-const inputRate24 = document.getElementById("inputRate24");
 const addItemButton = document.getElementById("addItemButton");
 const itemEditorList = document.getElementById("itemEditorList");
 const collapsibleSections = document.querySelectorAll("[data-collapsible]");
@@ -52,8 +52,8 @@ const previewBottomDate = document.getElementById("previewBottomDate");
 const previewCustomerName = document.getElementById("previewCustomerName");
 const previewCustomerAddress = document.getElementById("previewCustomerAddress");
 const rate18 = document.getElementById("rate18");
+const rate20 = document.getElementById("rate20");
 const rate22 = document.getElementById("rate22");
-const rate24 = document.getElementById("rate24");
 const valuationTableBody = document.getElementById("valuationTableBody");
 const totalGrossWeight = document.getElementById("totalGrossWeight");
 const totalStoneWeight = document.getElementById("totalStoneWeight");
@@ -98,11 +98,15 @@ function getRateByPurity(purity) {
     return Number(inputRate18.value || 0);
   }
 
+  if (purity === "20K") {
+    return Number(inputRate20.value || 0);
+  }
+
   if (purity === "22K") {
     return Number(inputRate22.value || 0);
   }
 
-  return Number(inputRate24.value || 0);
+  return 0;
 }
 
 function normalizeItem(item) {
@@ -138,8 +142,8 @@ function syncPreview() {
   previewCustomerAddress.textContent =
     customerAddress.value || "Customer Address";
   rate18.innerHTML = `<strong>18K</strong> - ${formatRate(inputRate18.value)}`;
+  rate20.innerHTML = `<strong>20K</strong> - ${formatRate(inputRate20.value)}`;
   rate22.innerHTML = `<strong>22K</strong> - ${formatRate(inputRate22.value)}`;
-  rate24.innerHTML = `<strong>24K</strong> - ${formatRate(inputRate24.value)}`;
 }
 
 function showWorkspace() {
@@ -210,6 +214,10 @@ function renderItemEditors() {
               <input class="item-form-input" data-field="description" data-id="${item.id}" type="text" value="${item.description}" placeholder="Enter ornament description" />
             </label>
             <label>
+              Qty
+              <input class="item-form-input" data-field="quantity" data-id="${item.id}" type="number" step="1" min="1" value="${item.quantity === 0 ? "" : item.quantity}" placeholder="1" />
+            </label>
+            <label>
               Gross Weight
               <input class="item-form-input" data-field="grossWeight" data-id="${item.id}" type="number" step="0.001" value="${item.grossWeight === 0 ? "" : formatWeight(item.grossWeight)}" placeholder="0.000" />
             </label>
@@ -222,8 +230,8 @@ function renderItemEditors() {
               <select class="item-form-input" data-field="purity" data-id="${item.id}">
                 <option value="" ${item.purity === "" ? "selected" : ""}>Select purity</option>
                 <option value="18K" ${item.purity === "18K" ? "selected" : ""}>18K</option>
+                <option value="20K" ${item.purity === "20K" ? "selected" : ""}>20K</option>
                 <option value="22K" ${item.purity === "22K" ? "selected" : ""}>22K</option>
-                <option value="24K" ${item.purity === "24K" ? "selected" : ""}>24K</option>
               </select>
             </label>
             <label>
@@ -247,6 +255,7 @@ function renderCertificateRows() {
       return `
         <tr data-id="${item.id}">
           <td>${index + 1}</td>
+          <td>${item.quantity || ""}</td>
           <td>${item.description}</td>
           <td>${formatWeight(item.grossWeight)}</td>
           <td>${formatWeight(item.stoneWeight)}</td>
@@ -308,6 +317,7 @@ function addItem() {
   items.push({
     id: Date.now(),
     description: "",
+    quantity: 1,
     grossWeight: 0,
     stoneWeight: 0,
     purity: "",
@@ -336,13 +346,13 @@ function deleteItem(itemId) {
   customerName,
   customerAddress,
   inputRate18,
+  inputRate20,
   inputRate22,
-  inputRate24,
 ].forEach((field) => {
   field.addEventListener("input", syncPreview);
 });
 
-[inputRate18, inputRate22, inputRate24].forEach((field) => {
+[inputRate18, inputRate20, inputRate22].forEach((field) => {
   field.addEventListener("input", () => {
     items = items.map(normalizeItem);
     syncPreview();
