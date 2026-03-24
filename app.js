@@ -90,6 +90,10 @@ function formatMoney(value) {
 }
 
 function getRateByPurity(purity) {
+  if (!purity) {
+    return 0;
+  }
+
   if (purity === "18K") {
     return Number(inputRate18.value || 0);
   }
@@ -203,19 +207,20 @@ function renderItemEditors() {
           <div class="item-card-grid">
             <label class="wide">
               Description
-              <input class="item-form-input" data-field="description" data-id="${item.id}" type="text" value="${item.description}" />
+              <input class="item-form-input" data-field="description" data-id="${item.id}" type="text" value="${item.description}" placeholder="Enter ornament description" />
             </label>
             <label>
               Gross Weight
-              <input class="item-form-input" data-field="grossWeight" data-id="${item.id}" type="number" step="0.001" value="${formatWeight(item.grossWeight)}" />
+              <input class="item-form-input" data-field="grossWeight" data-id="${item.id}" type="number" step="0.001" value="${item.grossWeight === 0 ? "" : formatWeight(item.grossWeight)}" placeholder="0.000" />
             </label>
             <label>
               Stone Weight
-              <input class="item-form-input" data-field="stoneWeight" data-id="${item.id}" type="number" step="0.001" value="${formatWeight(item.stoneWeight)}" />
+              <input class="item-form-input" data-field="stoneWeight" data-id="${item.id}" type="number" step="0.001" value="${item.stoneWeight === 0 ? "" : formatWeight(item.stoneWeight)}" placeholder="0.000" />
             </label>
             <label>
               Purity
               <select class="item-form-input" data-field="purity" data-id="${item.id}">
+                <option value="" ${item.purity === "" ? "selected" : ""}>Select purity</option>
                 <option value="18K" ${item.purity === "18K" ? "selected" : ""}>18K</option>
                 <option value="22K" ${item.purity === "22K" ? "selected" : ""}>22K</option>
                 <option value="24K" ${item.purity === "24K" ? "selected" : ""}>24K</option>
@@ -302,10 +307,10 @@ function updateItem(itemId, field, value, shouldRerenderEditors = false) {
 function addItem() {
   items.push({
     id: Date.now(),
-    description: "New Item",
+    description: "",
     grossWeight: 0,
     stoneWeight: 0,
-    purity: "22K",
+    purity: "",
     netWeight: 0,
     marketValue: 0,
   });
