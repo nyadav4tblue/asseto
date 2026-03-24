@@ -116,6 +116,10 @@ body {
   align-items: start;
 }
 
+.mobile-view-switcher {
+  display: none;
+}
+
 .control-panel {
   position: sticky;
   top: 18px;
@@ -693,6 +697,8 @@ body {
   .control-panel {
     position: static;
     margin-right: 0;
+    max-height: none;
+    overflow: visible;
   }
 
   .panel-resizer {
@@ -706,6 +712,55 @@ body {
 }
 
 @media (max-width: 760px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  .workspace {
+    width: calc(100% - 16px);
+    padding: 12px 0 24px;
+  }
+
+  .mobile-view-switcher {
+    position: sticky;
+    top: 8px;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 8px;
+    border: 1px solid rgba(139, 119, 86, 0.18);
+    border-radius: 18px;
+    background: rgba(255, 248, 235, 0.92);
+    backdrop-filter: blur(10px);
+  }
+
+  .mobile-view-button {
+    border: 1px solid rgba(139, 119, 86, 0.22);
+    border-radius: 999px;
+    background: transparent;
+    color: #4f3a22;
+    font: inherit;
+    font-weight: 700;
+    padding: 10px 14px;
+  }
+
+  .mobile-view-button.is-active {
+    background: #3f2d18;
+    color: #fff7eb;
+    border-color: #3f2d18;
+  }
+
+  .workspace.mobile-preview-only .control-panel {
+    display: none;
+  }
+
+  .workspace.mobile-form-only .certificate-sheet {
+    display: none;
+  }
+
   .control-grid,
   .signature-area,
   .item-card-grid,
@@ -713,8 +768,46 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .control-panel,
+  .form-section,
+  .login-card {
+    border-radius: 22px;
+  }
+
+  .control-panel {
+    padding: 14px;
+    overflow: visible;
+  }
+
   .sheet-border {
-    padding: 18px;
+    min-width: 720px;
+    padding: 18px 16px;
+  }
+
+  .certificate-sheet {
+    margin-top: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .floating-fullscreen {
+    top: 8px;
+    right: 8px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .preview-bottom-actions {
+    position: static;
+    width: 100%;
+    justify-content: center;
+    margin-top: 14px;
+    padding-top: 0;
+  }
+
+  .preview-bottom-actions button {
+    padding: 12px 16px;
   }
 
   .valuation-table th,
@@ -753,6 +846,7 @@ body {
   }
 
   .panel-resizer,
+  .mobile-view-switcher,
   .floating-fullscreen,
   .preview-bottom-actions {
     display: none;
@@ -768,51 +862,70 @@ body {
     max-width: none;
     min-height: 285mm;
     margin: 0;
-    padding: 0 8mm;
+    padding: 0 6mm;
     box-shadow: none;
     border: none;
   }
 
   .title-block {
-    margin-top: 10px;
+    margin-top: 6px;
   }
 
   .letter-block {
-    margin-top: 18px;
+    margin-top: 12px;
+    font-size: 0.93rem;
+    line-height: 1.28;
   }
 
   .valuation-table {
-    margin-top: 12px;
+    margin-top: 10px;
   }
 
   .declaration {
-    margin-top: 16px;
+    margin-top: 10px;
+    font-size: 0.91rem;
+    line-height: 1.28;
   }
 
   .place-date {
-    margin-top: 16px;
+    margin-top: 10px;
+    font-size: 0.92rem;
   }
 
   .signature-area {
-    margin-top: -34px;
+    margin-top: -22px;
   }
 
   .officer-row {
-    margin-top: 24px;
+    margin-top: 14px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 18px;
   }
 
   .signature-left,
   .signature-right {
     min-height: auto;
     gap: 0;
+    font-size: 0.92rem;
   }
 
   .internal-note {
     margin-top: auto;
-    padding-top: 24px;
+    padding-top: 12px;
     margin-bottom: 0;
+    font-size: 0.88rem;
+  }
+
+  .info-table td,
+  .valuation-table th,
+  .valuation-table td {
+    font-size: 0.88rem;
+    padding: 4px 6px;
+    line-height: 1.18;
+  }
+
+  .valuation-table th {
+    font-weight: 700;
   }
 }

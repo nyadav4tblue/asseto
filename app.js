@@ -5,6 +5,8 @@ const loginUser = document.getElementById("loginUser");
 const loginPassword = document.getElementById("loginPassword");
 const loginError = document.getElementById("loginError");
 const logoutButton = document.getElementById("logoutButton");
+const showFormView = document.getElementById("showFormView");
+const showPreviewView = document.getElementById("showPreviewView");
 
 const certificateDate = document.getElementById("certificateDate");
 const appraiserCertDate = document.getElementById("appraiserCertDate");
@@ -32,6 +34,7 @@ const certificateSheet = document.querySelector(".certificate-sheet");
 const AUTH_STORAGE_KEY = "gold-loan-authenticated";
 const AUTH_USER = "admin";
 const AUTH_PASSWORD = "gold123";
+const MOBILE_BREAKPOINT = 760;
 
 const documentDate = document.getElementById("documentDate");
 const previewLoanAccount = document.getElementById("previewLoanAccount");
@@ -153,6 +156,31 @@ function setAuthenticated(value) {
 
   localStorage.removeItem(AUTH_STORAGE_KEY);
   showLogin();
+}
+
+function setMobileView(mode) {
+  workspace.classList.remove("mobile-form-only", "mobile-preview-only");
+
+  if (window.innerWidth > MOBILE_BREAKPOINT) {
+    showFormView.classList.remove("is-active");
+    showPreviewView.classList.remove("is-active");
+    return;
+  }
+
+  if (mode === "preview") {
+    workspace.classList.add("mobile-preview-only");
+    showPreviewView.classList.add("is-active");
+    showFormView.classList.remove("is-active");
+    return;
+  }
+
+  workspace.classList.add("mobile-form-only");
+  showFormView.classList.add("is-active");
+  showPreviewView.classList.remove("is-active");
+}
+
+function isMobileView() {
+  return window.innerWidth <= MOBILE_BREAKPOINT;
 }
 
 function renderItems() {
@@ -402,6 +430,10 @@ fullscreenButton.addEventListener("click", async () => {
 
   certificateSheet.classList.add("is-fullscreen");
 
+  if (isMobileView()) {
+    return;
+  }
+
   if (certificateSheet.requestFullscreen) {
     try {
       await certificateSheet.requestFullscreen();
@@ -449,6 +481,14 @@ logoutButton.addEventListener("click", () => {
   loginError.hidden = true;
 });
 
+showFormView.addEventListener("click", () => {
+  setMobileView("form");
+});
+
+showPreviewView.addEventListener("click", () => {
+  setMobileView("preview");
+});
+
 let isResizing = false;
 
 panelResizer.addEventListener("mousedown", () => {
@@ -482,6 +522,10 @@ document.addEventListener("mouseup", () => {
   document.body.style.userSelect = "";
 });
 
+window.addEventListener("resize", () => {
+  setMobileView("form");
+});
+
 syncPreview();
 items = items.map(normalizeItem);
 renderItems();
@@ -491,3 +535,5 @@ if (localStorage.getItem(AUTH_STORAGE_KEY) === "true") {
 } else {
   showLogin();
 }
+
+setMobileView("form");
