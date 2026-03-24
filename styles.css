@@ -126,10 +126,13 @@ body {
   max-height: calc(100vh - 36px);
   overflow: auto;
   margin-right: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .session-actions {
-  margin-bottom: 16px;
+  margin-top: auto;
+  padding-top: 18px;
   display: flex;
   justify-content: flex-end;
 }
@@ -187,6 +190,7 @@ body {
 .entry-form {
   display: grid;
   gap: 16px;
+  flex: 1;
 }
 
 .form-section {
