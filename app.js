@@ -16,8 +16,10 @@ const loanAccount = document.getElementById("loanAccount");
 const ledgerFolio = document.getElementById("ledgerFolio");
 const appraiserAddress = document.getElementById("appraiserAddress");
 const placeName = document.getElementById("placeName");
-const customerName = document.getElementById("customerName");
-const customerAddress = document.getElementById("customerAddress");
+const cashOfficerName = document.getElementById("cashOfficerName");
+const cashOfficerPfid = document.getElementById("cashOfficerPfid");
+const jointOfficerName = document.getElementById("jointOfficerName");
+const jointOfficerPfid = document.getElementById("jointOfficerPfid");
 const inputRate18 = document.getElementById("inputRate18");
 const inputRate20 = document.getElementById("inputRate20");
 const inputRate22 = document.getElementById("inputRate22");
@@ -30,6 +32,7 @@ const fullscreenButton = document.getElementById("fullscreenButton");
 const panelResizer = document.getElementById("panelResizer");
 const workspace = document.getElementById("appWorkspace");
 const certificateSheet = document.querySelector(".certificate-sheet");
+const entryForm = document.querySelector(".entry-form");
 
 const AUTH_STORAGE_KEY = "gold-loan-authenticated";
 const AUTH_USER = "admin";
@@ -49,12 +52,17 @@ const previewCertificateInlineDate = document.getElementById(
 );
 const previewPlace = document.getElementById("previewPlace");
 const previewBottomDate = document.getElementById("previewBottomDate");
-const previewCustomerName = document.getElementById("previewCustomerName");
-const previewCustomerAddress = document.getElementById("previewCustomerAddress");
+const previewCashOfficerName = document.getElementById("previewCashOfficerName");
+const previewCashOfficerPfid = document.getElementById("previewCashOfficerPfid");
+const previewJointOfficerName = document.getElementById("previewJointOfficerName");
+const previewJointOfficerPfid = document.getElementById("previewJointOfficerPfid");
+const previewCashOfficerInline = document.getElementById("previewCashOfficerInline");
+const previewJointOfficerInline = document.getElementById("previewJointOfficerInline");
 const rate18 = document.getElementById("rate18");
 const rate20 = document.getElementById("rate20");
 const rate22 = document.getElementById("rate22");
 const valuationTableBody = document.getElementById("valuationTableBody");
+const totalQuantity = document.getElementById("totalQuantity");
 const totalGrossWeight = document.getElementById("totalGrossWeight");
 const totalStoneWeight = document.getElementById("totalStoneWeight");
 const totalNetWeight = document.getElementById("totalNetWeight");
@@ -87,6 +95,38 @@ function formatWeight(value) {
 
 function formatMoney(value) {
   return Number(value || 0).toLocaleString("en-IN");
+}
+
+function capitalizeWords(value) {
+  const text = String(value || "");
+
+  if (!text) {
+    return "";
+  }
+
+  return text
+    .split(/(\s+)/)
+    .map((part) => {
+      if (/^\s+$/.test(part) || part === "") {
+        return part;
+      }
+
+      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+    })
+    .join("");
+}
+
+function shouldCapitalizeField(fieldName) {
+  return [
+    "placeName",
+    "bankName",
+    "branchName",
+    "appraiserAddress",
+    "cashOfficerName",
+    "jointOfficerName",
+    "description",
+    "customerName",
+  ].includes(fieldName);
 }
 
 function getRateByPurity(purity) {
@@ -131,16 +171,20 @@ function syncPreview() {
   previewCertificateInlineDate.textContent = formattedCertificateDate;
   previewBottomDate.textContent = formattedCertificateDate;
   previewAppraiserCertDate.textContent = formatDate(appraiserCertDate.value);
-  previewBankName.textContent = bankName.value || "Bank Name";
-  previewBranchName.textContent = branchName.value || "Branch";
-  previewLoanAccount.textContent = loanAccount.value || "Loan Account";
-  previewLedgerFolio.textContent = ledgerFolio.value || "Ledger Folio";
-  previewAppraiserAddress.textContent =
-    appraiserAddress.value || "Appraiser address";
-  previewPlace.textContent = placeName.value || "Place";
-  previewCustomerName.textContent = customerName.value || "Customer Name";
-  previewCustomerAddress.textContent =
-    customerAddress.value || "Customer Address";
+  previewBankName.textContent = bankName.value || "";
+  previewBranchName.textContent = branchName.value || "";
+  previewLoanAccount.textContent = loanAccount.value || "";
+  previewLedgerFolio.textContent = ledgerFolio.value || "";
+  previewAppraiserAddress.textContent = appraiserAddress.value || "";
+  previewPlace.textContent = placeName.value || "";
+  previewCashOfficerName.textContent = capitalizeWords(cashOfficerName.value);
+  previewCashOfficerPfid.textContent = cashOfficerPfid.value || "";
+  previewJointOfficerName.textContent = capitalizeWords(jointOfficerName.value);
+  previewJointOfficerPfid.textContent = jointOfficerPfid.value || "";
+  previewCashOfficerInline.textContent =
+    capitalizeWords(cashOfficerName.value) || "................";
+  previewJointOfficerInline.textContent =
+    capitalizeWords(jointOfficerName.value) || "................";
   rate18.innerHTML = `<strong>18K</strong> - ${formatRate(inputRate18.value)}`;
   rate20.innerHTML = `<strong>20K</strong> - ${formatRate(inputRate20.value)}`;
   rate22.innerHTML = `<strong>22K</strong> - ${formatRate(inputRate22.value)}`;
@@ -193,6 +237,65 @@ function isMobileView() {
   return window.innerWidth <= MOBILE_BREAKPOINT;
 }
 
+function getFocusableFields() {
+  return Array.from(
+    workspace.querySelectorAll(
+      'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+    )
+  ).filter((element) => {
+    if (element.closest(".is-hidden")) {
+      return false;
+    }
+
+    const parentSection = element.closest(".section-content.is-collapsed");
+    return !parentSection;
+  });
+}
+
+function getItemEditorFields() {
+  return Array.from(
+    itemEditorList.querySelectorAll(
+      'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+    )
+  );
+}
+
+function focusNextField(currentElement) {
+  const focusableFields = getFocusableFields();
+  const currentIndex = focusableFields.indexOf(currentElement);
+
+  if (currentIndex === -1) {
+    return;
+  }
+
+  const nextField = focusableFields[currentIndex + 1];
+
+  if (nextField) {
+    nextField.focus();
+    if (typeof nextField.select === "function" && nextField.tagName !== "SELECT") {
+      nextField.select();
+    }
+  }
+}
+
+function focusNextItemField(currentElement) {
+  const focusableFields = getItemEditorFields();
+  const currentIndex = focusableFields.indexOf(currentElement);
+
+  if (currentIndex === -1) {
+    return;
+  }
+
+  const nextField = focusableFields[currentIndex + 1];
+
+  if (nextField) {
+    nextField.focus();
+    if (typeof nextField.select === "function" && nextField.tagName !== "SELECT") {
+      nextField.select();
+    }
+  }
+}
+
 function renderItems() {
   renderItemEditors();
   renderCertificateRows();
@@ -211,7 +314,7 @@ function renderItemEditors() {
           <div class="item-card-grid">
             <label class="wide">
               Description
-              <input class="item-form-input" data-field="description" data-id="${item.id}" type="text" value="${item.description}" placeholder="Enter ornament description" />
+              <input class="item-form-input" data-field="description" data-id="${item.id}" type="text" value="${capitalizeWords(item.description)}" placeholder="Enter ornament description" />
             </label>
             <label>
               Qty
@@ -255,8 +358,8 @@ function renderCertificateRows() {
       return `
         <tr data-id="${item.id}">
           <td>${index + 1}</td>
+          <td>${capitalizeWords(item.description)}</td>
           <td>${item.quantity || ""}</td>
-          <td>${item.description}</td>
           <td>${formatWeight(item.grossWeight)}</td>
           <td>${formatWeight(item.stoneWeight)}</td>
           <td>${item.purity}</td>
@@ -275,15 +378,17 @@ function renderCertificateRows() {
 function syncTotals() {
   const totals = items.reduce(
     (accumulator, item) => {
+      accumulator.quantity += Number(item.quantity || 0);
       accumulator.grossWeight += Number(item.grossWeight || 0);
       accumulator.stoneWeight += Number(item.stoneWeight || 0);
       accumulator.netWeight += Number(item.netWeight || 0);
       accumulator.marketValue += Number(item.marketValue || 0);
       return accumulator;
     },
-    { grossWeight: 0, stoneWeight: 0, netWeight: 0, marketValue: 0 }
+    { quantity: 0, grossWeight: 0, stoneWeight: 0, netWeight: 0, marketValue: 0 }
   );
 
+  totalQuantity.textContent = totals.quantity;
   totalGrossWeight.textContent = formatWeight(totals.grossWeight);
   totalStoneWeight.textContent = formatWeight(totals.stoneWeight);
   totalNetWeight.textContent = formatWeight(totals.netWeight);
@@ -297,7 +402,11 @@ function updateItem(itemId, field, value, shouldRerenderEditors = false) {
     }
 
     const nextValue =
-      field === "description" || field === "purity" ? value : Number(value || 0);
+      field === "description"
+        ? capitalizeWords(value)
+        : field === "purity"
+          ? value
+          : Number(value || 0);
 
     return normalizeItem({
       ...item,
@@ -314,8 +423,10 @@ function updateItem(itemId, field, value, shouldRerenderEditors = false) {
 }
 
 function addItem() {
+  const newId = Date.now();
+
   items.push({
-    id: Date.now(),
+    id: newId,
     description: "",
     quantity: 1,
     grossWeight: 0,
@@ -327,6 +438,23 @@ function addItem() {
 
   items = items.map(normalizeItem);
   renderItems();
+
+  requestAnimationFrame(() => {
+    const itemCard = itemEditorList
+      .querySelector(`[data-id="${newId}"][data-field="description"]`)
+      ?.closest(".item-editor-card");
+    const descriptionField = itemEditorList.querySelector(
+      `[data-id="${newId}"][data-field="description"]`
+    );
+
+    if (itemCard) {
+      itemCard.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    if (descriptionField) {
+      descriptionField.focus();
+    }
+  });
 }
 
 function deleteItem(itemId) {
@@ -343,8 +471,10 @@ function deleteItem(itemId) {
   ledgerFolio,
   appraiserAddress,
   placeName,
-  customerName,
-  customerAddress,
+  cashOfficerName,
+  cashOfficerPfid,
+  jointOfficerName,
+  jointOfficerPfid,
   inputRate18,
   inputRate20,
   inputRate22,
@@ -371,6 +501,10 @@ itemEditorList.addEventListener("input", (event) => {
     return;
   }
 
+  if (shouldCapitalizeField(field)) {
+    target.value = capitalizeWords(target.value);
+  }
+
   updateItem(itemId, field, target.value);
 
   const item = items.find((entry) => entry.id === itemId);
@@ -391,16 +525,65 @@ itemEditorList.addEventListener("input", (event) => {
   }
 });
 
+[
+  placeName,
+  bankName,
+  branchName,
+  appraiserAddress,
+  cashOfficerName,
+  jointOfficerName,
+].forEach((field) => {
+  field.addEventListener("input", () => {
+    field.value = capitalizeWords(field.value);
+    syncPreview();
+  });
+});
+
 itemEditorList.addEventListener("change", (event) => {
   const target = event.target;
   const itemId = Number(target.dataset.id);
   const field = target.dataset.field;
+
+  event.stopPropagation();
 
   if (!itemId || !field) {
     return;
   }
 
   updateItem(itemId, field, target.value, true);
+
+  if (target.tagName === "SELECT" && target.dataset.enterPressed === "true") {
+    delete target.dataset.enterPressed;
+    requestAnimationFrame(() => {
+      const refreshedSelect = itemEditorList.querySelector(
+        `[data-id="${itemId}"][data-field="${field}"]`
+      );
+      focusNextItemField(refreshedSelect || target);
+    });
+  }
+});
+
+itemEditorList.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || event.target.tagName === "TEXTAREA") {
+    return;
+  }
+
+  const target = event.target;
+  event.stopPropagation();
+
+  if (target.tagName === "SELECT") {
+    target.dataset.enterPressed = "true";
+    return;
+  }
+
+  if (target.tagName === "BUTTON") {
+    event.preventDefault();
+    target.click();
+    return;
+  }
+
+  event.preventDefault();
+  focusNextItemField(target);
 });
 
 itemEditorList.addEventListener("click", (event) => {
@@ -496,6 +679,39 @@ logoutButton.addEventListener("click", () => {
   setAuthenticated(false);
   loginForm.reset();
   loginError.hidden = true;
+});
+
+entryForm.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || event.target.tagName === "TEXTAREA") {
+    return;
+  }
+
+  const target = event.target;
+
+  if (target.tagName === "SELECT") {
+    target.dataset.enterPressed = "true";
+    return;
+  }
+
+  if (target.tagName === "BUTTON") {
+    event.preventDefault();
+    target.click();
+    return;
+  }
+
+  event.preventDefault();
+  focusNextField(target);
+});
+
+entryForm.addEventListener("change", (event) => {
+  const target = event.target;
+
+  if (target.tagName !== "SELECT" || target.dataset.enterPressed !== "true") {
+    return;
+  }
+
+  delete target.dataset.enterPressed;
+  focusNextField(target);
 });
 
 showFormView.addEventListener("click", () => {

@@ -153,29 +153,62 @@
             <button class="section-toggle" type="button" aria-expanded="false">
               <span class="section-head">
                 <span>
-                  <h3>Customer Details</h3>
-                  <p>Applicant information for the certificate</p>
+                  <h3>Cash Officer</h3>
+                  <p>Officer details for the certificate</p>
                 </span>
                 <span class="section-caret">▾</span>
               </span>
             </button>
             <div class="section-content control-grid is-collapsed">
               <label>
-                Customer Name
+                Officer Name
                 <input
-                  id="customerName"
+                  id="cashOfficerName"
                   type="text"
                   value=""
-                  placeholder="Enter customer name"
+                  placeholder="Enter cash officer name"
                 />
               </label>
-              <label class="wide">
-                Customer Address
-                <textarea
-                  id="customerAddress"
-                  rows="2"
-                  placeholder="Enter customer address"
-                ></textarea>
+              <label>
+                PFID
+                <input
+                  id="cashOfficerPfid"
+                  type="text"
+                  value=""
+                  placeholder="Enter PFID"
+                />
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section" data-collapsible>
+            <button class="section-toggle" type="button" aria-expanded="false">
+              <span class="section-head">
+                <span>
+                  <h3>Joint Custody Officer</h3>
+                  <p>Officer details for the certificate</p>
+                </span>
+                <span class="section-caret">▾</span>
+              </span>
+            </button>
+            <div class="section-content control-grid is-collapsed">
+              <label>
+                Officer Name
+                <input
+                  id="jointOfficerName"
+                  type="text"
+                  value=""
+                  placeholder="Enter joint custody officer name"
+                />
+              </label>
+              <label>
+                PFID
+                <input
+                  id="jointOfficerPfid"
+                  type="text"
+                  value=""
+                  placeholder="Enter PFID"
+                />
               </label>
             </div>
           </section>
@@ -234,7 +267,7 @@
             <div class="section-content is-collapsed">
               <div id="itemEditorList" class="item-editor-list"></div>
               <div class="item-actions">
-              <button id="addItemButton" type="button">Add Item Row</button>
+              <button id="addItemButton" type="button">Add</button>
               </div>
             </div>
           </section>
@@ -264,7 +297,11 @@
           <span aria-hidden="true">⛶</span>
         </button>
         <div class="sheet-border">
-          <div class="certificate-brand">Satendra Jwellers</div>
+          <div class="top-meta">
+            <div class="top-meta-left">GSTIN: <span>09DKGPK6561K1ZM</span></div>
+            <div class="certificate-brand">Satendra Jwellers</div>
+            <div class="top-meta-right">Mobile: <span>7017786133</span></div>
+          </div>
           <div class="sheet-topline">
             <div></div>
             <div class="annexure">Annexure - PL-61(iii)</div>
@@ -304,23 +341,20 @@
           <div class="letter-block">
             <p>The Branch Manager</p>
             <p id="previewBankName">State Bank of India</p>
-            <p><span id="previewBranchName">City Branch</span></p>
+            <p>Branch: <span id="previewBranchName">City Branch</span></p>
             <br />
             <p>Madam/ Dear Sir,</p>
             <br />
             <p>
-              I hereby certify that the ornaments/coins of the above mentioned
-              gold loan account have been weighed and appraised by me on
-              <span id="previewCertificateInlineDate">24/03/2026</span>. The
-              exact weight, purity of the metal and market value of each item
-              as on date are indicated below.
-            </p>
-            <p class="customer-inline">
-              Customer Name: <span id="previewCustomerName"></span>
-            </p>
-            <p class="customer-inline">
-              Customer Address:
-              <span id="previewCustomerAddress"></span>
+              I hereby certify that the ornaments/Coins of the above mentioned
+              gold loan account have been weighted and appraised by me on
+              <strong id="previewCertificateInlineDate">24/03/2026</strong> in
+              the presence of Sri/Smt.
+              <strong id="previewCashOfficerInline">................</strong>
+              (Cash in charge) and Sri/Smt.
+              <strong id="previewJointOfficerInline">................</strong>
+              (Joint Custody Officer). The exact weight, purity of the metal
+              and market value of each item as on date are indicated below:
             </p>
             <p class="rate-inline">
               Today's Gold Rate:
@@ -334,8 +368,8 @@
             <thead>
               <tr>
                 <th>Sl. No.</th>
-                <th>Qty</th>
                 <th>Description of the Article</th>
+                <th>Qty</th>
                 <th>Gross Weight</th>
                 <th>Approx. weight of stones</th>
                 <th>Purity (Carat)</th>
@@ -346,8 +380,8 @@
             <tbody id="valuationTableBody">
               <tr class="total-row">
                 <td></td>
-                <td></td>
                 <td>Total</td>
+                <td id="totalQuantity">0</td>
                 <td id="totalGrossWeight">26.620</td>
                 <td id="totalStoneWeight">5.324</td>
                 <td></td>
@@ -382,13 +416,13 @@
           <div class="officer-row">
             <div class="signature-left">
               <p>Cash Officer/in-Charge</p>
-              <p>Name:</p>
-              <p>PFID:</p>
+              <p>Name: <strong id="previewCashOfficerName"></strong></p>
+              <p>PFID: <strong id="previewCashOfficerPfid"></strong></p>
             </div>
             <div class="signature-right">
               <p>Joint Custody Officer</p>
-              <p>Name:</p>
-              <p>PFID:</p>
+              <p>Name: <strong id="previewJointOfficerName"></strong></p>
+              <p>PFID: <strong id="previewJointOfficerPfid"></strong></p>
             </div>
           </div>
 
