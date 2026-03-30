@@ -34,6 +34,9 @@ const certificateSheet = document.querySelector(".certificate-sheet");
 const entryForm = document.querySelector(".entry-form");
 
 const AUTH_STORAGE_KEY = "gold-loan-authenticated";
+const RATES_STORAGE_KEY = "gold-loan-rates";
+const OFFICERS_STORAGE_KEY = "gold-loan-officers";
+const BRANCH_STORAGE_KEY = "gold-loan-branch";
 const AUTH_USER = "admin";
 const AUTH_PASSWORD = "gold123";
 const MOBILE_BREAKPOINT = 760;
@@ -74,6 +77,136 @@ certificateDate.value = isoToday;
 appraiserCertDate.value = "";
 
 let items = [];
+
+function loadPersistedRates() {
+  try {
+    const raw = localStorage.getItem(RATES_STORAGE_KEY);
+    if (!raw) {
+      return;
+    }
+
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== "object") {
+      return;
+    }
+
+    if (data.rate18 != null && String(data.rate18) !== "") {
+      inputRate18.value = String(data.rate18);
+    }
+
+    if (data.rate20 != null && String(data.rate20) !== "") {
+      inputRate20.value = String(data.rate20);
+    }
+
+    if (data.rate22 != null && String(data.rate22) !== "") {
+      inputRate22.value = String(data.rate22);
+    }
+  } catch {
+    localStorage.removeItem(RATES_STORAGE_KEY);
+  }
+}
+
+function savePersistedRates() {
+  localStorage.setItem(
+    RATES_STORAGE_KEY,
+    JSON.stringify({
+      rate18: inputRate18.value,
+      rate20: inputRate20.value,
+      rate22: inputRate22.value,
+    })
+  );
+}
+
+function clearPersistedRates() {
+  localStorage.removeItem(RATES_STORAGE_KEY);
+  inputRate18.value = "";
+  inputRate20.value = "";
+  inputRate22.value = "";
+}
+
+function loadPersistedOfficers() {
+  try {
+    const raw = localStorage.getItem(OFFICERS_STORAGE_KEY);
+    if (!raw) {
+      return;
+    }
+
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== "object") {
+      return;
+    }
+
+    if (data.cashOfficerName != null) {
+      cashOfficerName.value = String(data.cashOfficerName);
+    }
+
+    if (data.cashOfficerPfid != null) {
+      cashOfficerPfid.value = String(data.cashOfficerPfid);
+    }
+
+    if (data.jointOfficerName != null) {
+      jointOfficerName.value = String(data.jointOfficerName);
+    }
+
+    if (data.jointOfficerPfid != null) {
+      jointOfficerPfid.value = String(data.jointOfficerPfid);
+    }
+  } catch {
+    localStorage.removeItem(OFFICERS_STORAGE_KEY);
+  }
+}
+
+function savePersistedOfficers() {
+  localStorage.setItem(
+    OFFICERS_STORAGE_KEY,
+    JSON.stringify({
+      cashOfficerName: cashOfficerName.value,
+      cashOfficerPfid: cashOfficerPfid.value,
+      jointOfficerName: jointOfficerName.value,
+      jointOfficerPfid: jointOfficerPfid.value,
+    })
+  );
+}
+
+function clearPersistedOfficers() {
+  localStorage.removeItem(OFFICERS_STORAGE_KEY);
+  cashOfficerName.value = "";
+  cashOfficerPfid.value = "";
+  jointOfficerName.value = "";
+  jointOfficerPfid.value = "";
+}
+
+function loadPersistedBranch() {
+  try {
+    const raw = localStorage.getItem(BRANCH_STORAGE_KEY);
+    if (!raw) {
+      return;
+    }
+
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== "object") {
+      return;
+    }
+
+    if (data.branchName != null) {
+      branchName.value = String(data.branchName);
+    }
+  } catch {
+    localStorage.removeItem(BRANCH_STORAGE_KEY);
+  }
+}
+
+function savePersistedBranch() {
+  localStorage.setItem(
+    BRANCH_STORAGE_KEY,
+    JSON.stringify({ branchName: branchName.value })
+  );
+}
+
+function clearPersistedBranch() {
+  localStorage.removeItem(BRANCH_STORAGE_KEY);
+  branchName.value = "";
+}
 
 function formatDate(value) {
   if (!value) {
@@ -485,6 +618,7 @@ function deleteItem(itemId) {
     items = items.map(normalizeItem);
     syncPreview();
     renderItems();
+    savePersistedRates();
   });
 });
 
@@ -535,6 +669,14 @@ itemEditorList.addEventListener("input", (event) => {
     syncPreview();
   });
 });
+
+[cashOfficerName, cashOfficerPfid, jointOfficerName, jointOfficerPfid].forEach(
+  (field) => {
+    field.addEventListener("input", savePersistedOfficers);
+  }
+);
+
+branchName.addEventListener("input", savePersistedBranch);
 
 itemEditorList.addEventListener("change", (event) => {
   const target = event.target;
@@ -673,6 +815,12 @@ loginForm.addEventListener("submit", (event) => {
 });
 
 logoutButton.addEventListener("click", () => {
+  clearPersistedRates();
+  clearPersistedOfficers();
+  clearPersistedBranch();
+  items = items.map(normalizeItem);
+  syncPreview();
+  renderItems();
   setAuthenticated(false);
   loginForm.reset();
   loginError.hidden = true;
@@ -756,6 +904,9 @@ window.addEventListener("resize", () => {
   setMobileView(currentMobileView);
 });
 
+loadPersistedRates();
+loadPersistedOfficers();
+loadPersistedBranch();
 syncPreview();
 items = items.map(normalizeItem);
 renderItems();
