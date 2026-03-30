@@ -857,12 +857,156 @@ collapsibleSections.forEach((section) => {
   });
 });
 
+function buildCertificatePdfFileName() {
+  const rawDate =
+    certificateDate.value || new Date().toISOString().slice(0, 10);
+  const datePart = rawDate.replace(/\D/g, "").slice(0, 8);
+
+  const sanitizeSegment = (value) => {
+    const s = String(value || "")
+      .trim()
+      .replace(/[\\/:*?"<>|#]/g, "")
+      .replace(/\s+/g, "-");
+    return s || "na";
+  };
+
+  let loanSeg = sanitizeSegment(loanAccount.value);
+  let folioSeg = sanitizeSegment(ledgerFolio.value);
+  const maxLen = 40;
+  if (loanSeg.length > maxLen) {
+    loanSeg = loanSeg.slice(0, maxLen);
+  }
+  if (folioSeg.length > maxLen) {
+    folioSeg = folioSeg.slice(0, maxLen);
+  }
+
+  return `${datePart}-${loanSeg}-${folioSeg}-Certificate.pdf`;
+}
+
+// A4 content width in px @96dpi — matches jsPDF inner width when LR margins applied
+const PDF_MARGIN_LR_MM = 6;
+const PDF_EXPORT_WIDTH_PX = Math.round(
+  ((210 - PDF_MARGIN_LR_MM * 2) / 25.4) * 96
+);
+
+async function downloadCertificatePdf() {
+  const element = document.querySelector(".sheet-border");
+
+  if (!element) {
+    return;
+  }
+
+  if (typeof html2pdf === "undefined" || typeof html2canvas !== "function") {
+    window.alert(
+      "PDF tools did not load (needs network for first use). Use Print, then Save as PDF."
+    );
+    return;
+  }
+
+  const label = previewPdfButton.querySelector("span:last-child");
+  const previousLabel = label?.textContent ?? "";
+  previewPdfButton.disabled = true;
+
+  if (label) {
+    label.textContent = "Preparing…";
+  }
+
+  const sheet = document.querySelector(".certificate-sheet");
+  const prevScrollTop = sheet?.scrollTop ?? 0;
+
+  if (sheet) {
+    sheet.scrollTop = 0;
+  }
+
+  // html2pdf puts content in a full-viewport overlay with overflow:hidden, which
+  // clips long certificates. Rasterize this clone with html2canvas, then pass
+  // the canvas to html2pdf (bypasses that overlay). Host sits below the fold
+  // (no parent opacity — that would make the clone transparent to canvas).
+  const host = document.createElement("div");
+  host.setAttribute("aria-hidden", "true");
+  host.style.cssText = [
+    "position:fixed",
+    "left:0",
+    "top:100vh",
+    `width:${PDF_EXPORT_WIDTH_PX}px`,
+    "overflow:visible",
+    "pointer-events:none",
+    "background:#ffffff",
+  ].join(";");
+
+  const clone = element.cloneNode(true);
+  clone.querySelectorAll("[id]").forEach((node) => {
+    node.removeAttribute("id");
+  });
+  clone.classList.add("sheet-border--pdf-export");
+  host.appendChild(clone);
+  document.body.appendChild(host);
+
+  void clone.offsetHeight;
+
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+
+  try {
+    const sw = Math.max(clone.scrollWidth, 1);
+    const sh = Math.max(clone.scrollHeight, 1);
+    // Stay under common browser canvas limits (~16k px per side).
+    const scale = Math.min(
+      2,
+      Math.max(1, Math.floor(16000 / Math.max(sw, sh)))
+    );
+
+    const canvas = await html2canvas(clone, {
+      scale,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+      foreignObjectRendering: false,
+      scrollX: 0,
+      scrollY: 0,
+    });
+
+    await html2pdf()
+      .set({
+        // [top, left, bottom, right] in mm — left/right inset on the page
+        margin: [0, PDF_MARGIN_LR_MM, 0, PDF_MARGIN_LR_MM],
+        filename: buildCertificatePdfFileName(),
+        image: { type: "jpeg", quality: 0.95 },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait",
+        },
+      })
+      .from(canvas)
+      .save();
+  } catch (error) {
+    console.error(error);
+    window.alert(
+      "Could not create the PDF. Use Print and choose Save as PDF instead."
+    );
+  } finally {
+    host.remove();
+
+    if (sheet) {
+      sheet.scrollTop = prevScrollTop;
+    }
+
+    previewPdfButton.disabled = false;
+
+    if (label) {
+      label.textContent = previousLabel;
+    }
+  }
+}
+
 previewPrintButton.addEventListener("click", () => {
   window.print();
 });
 
 previewPdfButton.addEventListener("click", () => {
-  window.print();
+  downloadCertificatePdf();
 });
 
 fullscreenButton.addEventListener("click", async () => {
