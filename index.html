@@ -60,50 +60,41 @@
           <button class="section-toggle" type="button" aria-expanded="true">
             <span class="section-head">
               <span>
-                <h3>Certificate Details</h3>
-                <p>Main certificate information</p>
+                <h3>Certificate &amp; jewelry</h3>
+                <p>Certificate fields and ornament lines</p>
               </span>
               <span class="section-caret">▾</span>
             </span>
           </button>
-          <div class="section-content control-grid">
-            <label>
-              Certificate date
-              <input id="certificateDate" type="date" />
-            </label>
-            <label>
-              Appraiser certificate date
-              <input id="appraiserCertDate" type="date" />
-            </label>
-            <label>
-              Loan A/c No.
-              <input id="loanAccount" type="text" value="" placeholder="Enter loan account number" />
-            </label>
-            <label>
-              Ledger Folio No.
-              <input id="ledgerFolio" type="text" value="" placeholder="Enter ledger folio number" />
-            </label>
-            <label class="wide">
-              Name and address of first appraiser
-              <textarea id="appraiserAddress" rows="2" placeholder="Enter appraiser name and address"></textarea>
-            </label>
-          </div>
-        </section>
-
-        <section class="form-section" data-collapsible>
-          <button class="section-toggle" type="button" aria-expanded="false">
-            <span class="section-head">
-              <span>
-                <h3>Jewelry Items</h3>
-                <p>Add, edit, or delete each ornament from here</p>
-              </span>
-              <span class="section-caret">▾</span>
-            </span>
-          </button>
-          <div class="section-content is-collapsed">
-            <div id="itemEditorList" class="item-editor-list"></div>
-            <div class="item-actions">
-              <button id="addItemButton" type="button">Add</button>
+          <div class="section-content">
+            <div class="control-grid">
+              <label>
+                Certificate date
+                <input id="certificateDate" type="date" />
+              </label>
+              <label>
+                Appraiser certificate date
+                <input id="appraiserCertDate" type="date" />
+              </label>
+              <label>
+                Loan A/c No.
+                <input id="loanAccount" type="text" value="" placeholder="Enter loan account number" />
+              </label>
+              <label>
+                Ledger Folio No.
+                <input id="ledgerFolio" type="text" value="" placeholder="Enter ledger folio number" />
+              </label>
+              <label class="wide">
+                Name and address of first appraiser
+                <textarea id="appraiserAddress" rows="2" placeholder="Enter appraiser name and address"></textarea>
+              </label>
+            </div>
+            <div class="jewelry-inline-block">
+              <p class="jewelry-inline-label">Jewelry items</p>
+              <div id="itemEditorList" class="item-editor-list"></div>
+              <div class="item-actions">
+                <button id="addItemButton" type="button">Add</button>
+              </div>
             </div>
           </div>
         </section>

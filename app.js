@@ -32,6 +32,7 @@ const panelResizer = document.getElementById("panelResizer");
 const workspace = document.getElementById("appWorkspace");
 const certificateSheet = document.querySelector(".certificate-sheet");
 const entryForm = document.querySelector(".entry-form");
+const controlPanel = document.querySelector(".control-panel");
 
 const AUTH_STORAGE_KEY = "gold-loan-authenticated";
 const RATES_STORAGE_KEY = "gold-loan-rates";
@@ -40,6 +41,13 @@ const BRANCH_STORAGE_KEY = "gold-loan-branch";
 const AUTH_USER = "admin";
 const AUTH_PASSWORD = "gold123";
 const MOBILE_BREAKPOINT = 760;
+const ITEM_FIELD_NAV_ORDER = [
+  "description",
+  "quantity",
+  "grossWeight",
+  "stoneWeight",
+  "purity",
+];
 let currentMobileView = "form";
 
 const documentDate = document.getElementById("documentDate");
@@ -371,7 +379,7 @@ function isMobileView() {
 
 function getFocusableFields() {
   return Array.from(
-    workspace.querySelectorAll(
+    controlPanel.querySelectorAll(
       'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
     )
   ).filter((element) => {
@@ -380,52 +388,124 @@ function getFocusableFields() {
     }
 
     const parentSection = element.closest(".section-content.is-collapsed");
-    return !parentSection;
+    if (parentSection) {
+      return false;
+    }
+
+    if (element.classList.contains("row-delete")) {
+      return false;
+    }
+
+    return true;
   });
 }
 
-function getItemEditorFields() {
-  return Array.from(
-    itemEditorList.querySelectorAll(
-      'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
-    )
-  );
-}
-
 function focusNextField(currentElement) {
-  const focusableFields = getFocusableFields();
-  const currentIndex = focusableFields.indexOf(currentElement);
+  const applyFocus = (el) => {
+    if (!el) {
+      return;
+    }
 
-  if (currentIndex === -1) {
-    return;
-  }
+    requestAnimationFrame(() => {
+      el.focus();
 
-  const nextField = focusableFields[currentIndex + 1];
+      if (typeof el.select === "function" && el.tagName !== "SELECT") {
+        el.select();
+      }
+    });
+  };
 
-  if (nextField) {
-    nextField.focus();
-    if (typeof nextField.select === "function" && nextField.tagName !== "SELECT") {
-      nextField.select();
+  for (let guard = 0; guard < 30; guard += 1) {
+    const fields = getFocusableFields();
+    const idx = fields.indexOf(currentElement);
+
+    if (idx === -1) {
+      return;
+    }
+
+    let expandedSomething = false;
+
+    for (let j = idx + 1; j < fields.length; j += 1) {
+      const el = fields[j];
+
+      if (el.classList.contains("section-toggle")) {
+        if (el.getAttribute("aria-expanded") === "false") {
+          el.click();
+          expandedSomething = true;
+          break;
+        }
+
+        continue;
+      }
+
+      applyFocus(el);
+      return;
+    }
+
+    if (!expandedSomething) {
+      return;
     }
   }
 }
 
 function focusNextItemField(currentElement) {
-  const focusableFields = getItemEditorFields();
-  const currentIndex = focusableFields.indexOf(currentElement);
+  const applyFocus = (el) => {
+    if (!el) {
+      return;
+    }
 
-  if (currentIndex === -1) {
+    requestAnimationFrame(() => {
+      el.focus();
+
+      if (typeof el.select === "function" && el.tagName !== "SELECT") {
+        el.select();
+      }
+    });
+  };
+
+  const rawId = currentElement.dataset?.id;
+  const field = currentElement.dataset?.field;
+
+  if (rawId == null || !field) {
     return;
   }
 
-  const nextField = focusableFields[currentIndex + 1];
+  const idSelector =
+    typeof CSS !== "undefined" && typeof CSS.escape === "function"
+      ? CSS.escape(String(rawId))
+      : String(rawId);
 
-  if (nextField) {
-    nextField.focus();
-    if (typeof nextField.select === "function" && nextField.tagName !== "SELECT") {
-      nextField.select();
-    }
+  const orderIdx = ITEM_FIELD_NAV_ORDER.indexOf(field);
+
+  if (orderIdx === -1) {
+    return;
   }
+
+  if (orderIdx < ITEM_FIELD_NAV_ORDER.length - 1) {
+    const nextName = ITEM_FIELD_NAV_ORDER[orderIdx + 1];
+    const next = itemEditorList.querySelector(
+      `[data-id="${idSelector}"][data-field="${nextName}"]`
+    );
+    applyFocus(next);
+    return;
+  }
+
+  const card = currentElement.closest(".item-editor-card");
+  if (!card) {
+    return;
+  }
+
+  let sibling = card.nextElementSibling;
+  while (sibling) {
+    const nextDesc = sibling.querySelector('[data-field="description"]');
+    if (nextDesc) {
+      applyFocus(nextDesc);
+      return;
+    }
+    sibling = sibling.nextElementSibling;
+  }
+
+  applyFocus(addItemButton);
 }
 
 function renderItems() {
@@ -689,41 +769,71 @@ itemEditorList.addEventListener("change", (event) => {
     return;
   }
 
-  updateItem(itemId, field, target.value, true);
+  updateItem(itemId, field, target.value, false);
+
+  const item = items.find((entry) => entry.id === itemId);
+  const card = target.closest(".item-editor-card");
+
+  if (item && card) {
+    const readonlyFields = card.querySelectorAll(".readonly-field");
+
+    if (readonlyFields[0]) {
+      readonlyFields[0].textContent = formatWeight(item.netWeight);
+    }
+
+    if (readonlyFields[1]) {
+      readonlyFields[1].textContent = formatMoney(item.marketValue);
+    }
+  }
 
   if (target.tagName === "SELECT" && target.dataset.enterPressed === "true") {
     delete target.dataset.enterPressed;
     requestAnimationFrame(() => {
-      const refreshedSelect = itemEditorList.querySelector(
-        `[data-id="${itemId}"][data-field="${field}"]`
-      );
-      focusNextItemField(refreshedSelect || target);
+      focusNextItemField(target);
     });
   }
 });
 
-itemEditorList.addEventListener("keydown", (event) => {
-  if (event.key !== "Enter" || event.target.tagName === "TEXTAREA") {
-    return;
-  }
+itemEditorList.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key !== "Enter" || event.isComposing) {
+      return;
+    }
 
-  const target = event.target;
-  event.stopPropagation();
+    const target = event.target;
 
-  if (target.tagName === "SELECT") {
-    target.dataset.enterPressed = "true";
-    return;
-  }
+    if (target.tagName === "TEXTAREA") {
+      return;
+    }
 
-  if (target.tagName === "BUTTON") {
+    if (!itemEditorList.contains(target)) {
+      return;
+    }
+
+    if (target.tagName === "BUTTON") {
+      event.preventDefault();
+      event.stopPropagation();
+      target.click();
+      return;
+    }
+
+    if (!target.classList.contains("item-form-input")) {
+      return;
+    }
+
     event.preventDefault();
-    target.click();
-    return;
-  }
+    event.stopPropagation();
 
-  event.preventDefault();
-  focusNextItemField(target);
-});
+    if (target.tagName === "SELECT") {
+      target.dataset.enterPressed = "true";
+      return;
+    }
+
+    focusNextItemField(target);
+  },
+  true
+);
 
 itemEditorList.addEventListener("click", (event) => {
   const target = event.target;
@@ -827,11 +937,29 @@ logoutButton.addEventListener("click", () => {
 });
 
 entryForm.addEventListener("keydown", (event) => {
-  if (event.key !== "Enter" || event.target.tagName === "TEXTAREA") {
+  if (event.key !== "Enter") {
+    return;
+  }
+
+  if (event.target.closest("#itemEditorList")) {
+    return;
+  }
+
+  if (event.isComposing) {
     return;
   }
 
   const target = event.target;
+
+  if (target.tagName === "TEXTAREA") {
+    if (event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    focusNextField(target);
+    return;
+  }
 
   if (target.tagName === "SELECT") {
     target.dataset.enterPressed = "true";
