@@ -938,7 +938,7 @@ input[type="date"] {
     max-width: none;
     min-height: 285mm;
     margin: 0;
-    padding: 0 6mm;
+    padding: 5mm 6mm 0;
     box-shadow: none;
     border: none;
   }
@@ -947,13 +947,37 @@ input[type="date"] {
     margin-top: 6px;
   }
 
-  .top-meta-left,
+  .top-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: baseline;
+    gap: 10px 14px;
+    margin-top: 3mm;
+    margin-bottom: 6px;
+  }
+
+  .top-meta-left {
+    text-align: left;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
   .top-meta-right {
-    font-size: 0.84rem;
+    text-align: right;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
   }
 
   .certificate-brand {
-    font-size: 1.75rem;
+    text-align: center;
+    font-size: 1.68rem;
+    line-height: 1.1;
+    margin: 0;
+    white-space: nowrap;
   }
 
   .letter-block {

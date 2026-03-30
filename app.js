@@ -607,6 +607,45 @@ function syncTotals() {
   totalMarketValue.textContent = formatMoney(totals.marketValue);
 }
 
+function syncItemReadonlyCells(itemId) {
+  const item = items.find((entry) => entry.id === itemId);
+  const idPart =
+    typeof CSS !== "undefined" && typeof CSS.escape === "function"
+      ? CSS.escape(String(itemId))
+      : String(itemId);
+  const anchor = itemEditorList.querySelector(
+    `[data-id="${idPart}"][data-field="description"]`
+  );
+
+  if (!item || !anchor) {
+    return;
+  }
+
+  const card = anchor.closest(".item-editor-card");
+  if (!card) {
+    return;
+  }
+
+  const readonlyFields = card.querySelectorAll(".readonly-field");
+
+  if (readonlyFields[0]) {
+    readonlyFields[0].textContent = formatWeight(item.netWeight);
+  }
+
+  if (readonlyFields[1]) {
+    readonlyFields[1].textContent = formatMoney(item.marketValue);
+  }
+}
+
+function applyGoldRatesToItems() {
+  items = items.map(normalizeItem);
+  syncPreview();
+  renderItemEditors();
+  renderCertificateRows();
+  syncTotals();
+  savePersistedRates();
+}
+
 function updateItem(itemId, field, value, shouldRerenderEditors = false) {
   items = items.map((item) => {
     if (item.id !== itemId) {
@@ -632,6 +671,7 @@ function updateItem(itemId, field, value, shouldRerenderEditors = false) {
 
   renderCertificateRows();
   syncTotals();
+  syncItemReadonlyCells(itemId);
 }
 
 function addItem() {
@@ -686,20 +726,13 @@ function deleteItem(itemId) {
   cashOfficerPfid,
   jointOfficerName,
   jointOfficerPfid,
-  inputRate18,
-  inputRate20,
-  inputRate22,
 ].forEach((field) => {
   field.addEventListener("input", syncPreview);
 });
 
 [inputRate18, inputRate20, inputRate22].forEach((field) => {
-  field.addEventListener("input", () => {
-    items = items.map(normalizeItem);
-    syncPreview();
-    renderItems();
-    savePersistedRates();
-  });
+  field.addEventListener("input", applyGoldRatesToItems);
+  field.addEventListener("change", applyGoldRatesToItems);
 });
 
 addItemButton.addEventListener("click", addItem);
@@ -718,23 +751,6 @@ itemEditorList.addEventListener("input", (event) => {
   }
 
   updateItem(itemId, field, target.value);
-
-  const item = items.find((entry) => entry.id === itemId);
-  const card = target.closest(".item-editor-card");
-
-  if (!item || !card) {
-    return;
-  }
-
-  const readonlyFields = card.querySelectorAll(".readonly-field");
-
-  if (readonlyFields[0]) {
-    readonlyFields[0].textContent = formatWeight(item.netWeight);
-  }
-
-  if (readonlyFields[1]) {
-    readonlyFields[1].textContent = formatMoney(item.marketValue);
-  }
 });
 
 [
@@ -770,21 +786,6 @@ itemEditorList.addEventListener("change", (event) => {
   }
 
   updateItem(itemId, field, target.value, false);
-
-  const item = items.find((entry) => entry.id === itemId);
-  const card = target.closest(".item-editor-card");
-
-  if (item && card) {
-    const readonlyFields = card.querySelectorAll(".readonly-field");
-
-    if (readonlyFields[0]) {
-      readonlyFields[0].textContent = formatWeight(item.netWeight);
-    }
-
-    if (readonlyFields[1]) {
-      readonlyFields[1].textContent = formatMoney(item.marketValue);
-    }
-  }
 
   if (target.tagName === "SELECT" && target.dataset.enterPressed === "true") {
     delete target.dataset.enterPressed;
