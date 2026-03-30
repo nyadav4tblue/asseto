@@ -15,7 +15,6 @@ const branchName = document.getElementById("branchName");
 const loanAccount = document.getElementById("loanAccount");
 const ledgerFolio = document.getElementById("ledgerFolio");
 const appraiserAddress = document.getElementById("appraiserAddress");
-const placeName = document.getElementById("placeName");
 const cashOfficerName = document.getElementById("cashOfficerName");
 const cashOfficerPfid = document.getElementById("cashOfficerPfid");
 const jointOfficerName = document.getElementById("jointOfficerName");
@@ -118,7 +117,6 @@ function capitalizeWords(value) {
 
 function shouldCapitalizeField(fieldName) {
   return [
-    "placeName",
     "bankName",
     "branchName",
     "appraiserAddress",
@@ -176,7 +174,8 @@ function syncPreview() {
   previewLoanAccount.textContent = loanAccount.value || "";
   previewLedgerFolio.textContent = ledgerFolio.value || "";
   previewAppraiserAddress.textContent = appraiserAddress.value || "";
-  previewPlace.textContent = placeName.value || "";
+  // Place appears only on the certificate; always Aligarh for this template.
+  previewPlace.textContent = "Aligarh";
   previewCashOfficerName.textContent = capitalizeWords(cashOfficerName.value);
   previewCashOfficerPfid.textContent = cashOfficerPfid.value || "";
   previewJointOfficerName.textContent = capitalizeWords(jointOfficerName.value);
@@ -470,7 +469,6 @@ function deleteItem(itemId) {
   loanAccount,
   ledgerFolio,
   appraiserAddress,
-  placeName,
   cashOfficerName,
   cashOfficerPfid,
   jointOfficerName,
@@ -526,7 +524,6 @@ itemEditorList.addEventListener("input", (event) => {
 });
 
 [
-  placeName,
   bankName,
   branchName,
   appraiserAddress,
